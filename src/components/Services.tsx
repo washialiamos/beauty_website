@@ -1,48 +1,35 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Sparkles, Clock, Award, Users } from 'lucide-react';
 
+const iconMap: { [key: string]: any } = {
+  Sparkles,
+  Clock,
+  Award,
+  Users
+};
+
 const Services: React.FC = () => {
   const [visibleItems, setVisibleItems] = useState<number[]>([]);
+  const [services, setServices] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
   const sectionRef = useRef<HTMLElement>(null);
 
-  const services = [
-    {
-      icon: Sparkles,
-      title: "Facial Treatments",
-      description: "Rejuvenating facial treatments using premium skincare products for glowing, healthy skin.",
-      features: ["Deep Cleansing", "Anti-Aging", "Hydrating Masks", "Custom Solutions"],
-      price: "From $120",
-      duration: "60-90 min",
-      color: "rose"
-    },
-    {
-      icon: Award,
-      title: "Hair Styling",
-      description: "Professional hair cutting, coloring, and styling services for every occasion.",
-      features: ["Cuts & Trims", "Color Services", "Special Events", "Hair Treatments"],
-      price: "From $80",
-      duration: "45-120 min",
-      color: "pink"
-    },
-    {
-      icon: Users,
-      title: "Makeup Artistry",
-      description: "Expert makeup application for weddings, events, or your daily beauty routine.",
-      features: ["Bridal Makeup", "Event Looks", "Makeup Lessons", "Product Consultation"],
-      price: "From $100",
-      duration: "30-90 min",
-      color: "purple"
-    },
-    {
-      icon: Clock,
-      title: "Nail Services",
-      description: "Complete nail care including manicures, pedicures, and artistic nail designs.",
-      features: ["Manicures", "Pedicures", "Gel Polish", "Nail Art"],
-      price: "From $50",
-      duration: "30-60 min",
-      color: "indigo"
-    }
-  ];
+  useEffect(() => {
+    const fetchServices = async () => {
+      try {
+        const response = await fetch('http://localhost:5000/api/services');
+        if (!response.ok) throw new Error('Failed to fetch services');
+        const data = await response.json();
+        setServices(data);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchServices();
+  }, []);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -61,7 +48,7 @@ const Services: React.FC = () => {
     elements?.forEach((el) => observer.observe(el));
 
     return () => observer.disconnect();
-  }, []);
+  }, [services]);
 
   const getColorClasses = (color: string) => {
     const colors = {
@@ -87,7 +74,7 @@ const Services: React.FC = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {services.map((service, index) => {
-            const Icon = service.icon;
+            const Icon = iconMap[service.title.split(' ')[0]] || Sparkles;
             const isVisible = visibleItems.includes(index);
             
             return (
@@ -115,7 +102,7 @@ const Services: React.FC = () => {
                   </p>
                   
                   <ul className="space-y-2 mb-6">
-                    {service.features.map((feature, featureIndex) => (
+                    {service.features.map((feature: string, featureIndex: number) => (
                       <li key={featureIndex} className="flex items-center text-sm text-gray-600">
                         <div className="w-2 h-2 bg-rose-400 rounded-full mr-3"></div>
                         {feature}

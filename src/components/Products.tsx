@@ -5,66 +5,29 @@ const Products: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [visibleItems, setVisibleItems] = useState<number[]>([]);
   const [likedProducts, setLikedProducts] = useState<number[]>([]);
+  const [products, setProducts] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const sectionRef = useRef<HTMLElement>(null);
 
   const categories = ['All', 'Skincare', 'Makeup', 'Haircare', 'Tools'];
   
-  const products = [
-    {
-      id: 1,
-      name: "Radiance Serum",
-      category: "Skincare",
-      price: 89,
-      rating: 4.8,
-      image: "https://images.pexels.com/photos/3762879/pexels-photo-3762879.jpeg?auto=compress&cs=tinysrgb&w=400",
-      description: "Premium vitamin C serum for glowing skin"
-    },
-    {
-      id: 2,
-      name: "Luxury Lipstick Set",
-      category: "Makeup",
-      price: 125,
-      rating: 4.9,
-      image: "https://images.pexels.com/photos/2533266/pexels-photo-2533266.jpeg?auto=compress&cs=tinysrgb&w=400",
-      description: "5-piece premium lipstick collection"
-    },
-    {
-      id: 3,
-      name: "Nourishing Hair Mask",
-      category: "Haircare",
-      price: 65,
-      rating: 4.7,
-      image: "https://images.pexels.com/photos/7262047/pexels-photo-7262047.jpeg?auto=compress&cs=tinysrgb&w=400",
-      description: "Deep conditioning treatment for all hair types"
-    },
-    {
-      id: 4,
-      name: "Professional Brush Set",
-      category: "Tools",
-      price: 199,
-      rating: 4.9,
-      image: "https://images.pexels.com/photos/3997991/pexels-photo-3997991.jpeg?auto=compress&cs=tinysrgb&w=400",
-      description: "15-piece professional makeup brush collection"
-    },
-    {
-      id: 5,
-      name: "Anti-Aging Cream",
-      category: "Skincare",
-      price: 149,
-      rating: 4.6,
-      image: "https://images.pexels.com/photos/3685530/pexels-photo-3685530.jpeg?auto=compress&cs=tinysrgb&w=400",
-      description: "Advanced anti-aging night cream"
-    },
-    {
-      id: 6,
-      name: "Eyeshadow Palette",
-      category: "Makeup",
-      price: 78,
-      rating: 4.8,
-      image: "https://images.pexels.com/photos/2533092/pexels-photo-2533092.jpeg?auto=compress&cs=tinysrgb&w=400",
-      description: "20-shade neutral eyeshadow palette"
-    }
-  ];
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const response = await fetch('http://localhost:5000/api/products');
+        if (!response.ok) throw new Error('Failed to fetch products');
+        const data = await response.json();
+        setProducts(data);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'An error occurred');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, []);
 
   const filteredProducts = selectedCategory === 'All' 
     ? products 
